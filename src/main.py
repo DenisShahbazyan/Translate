@@ -1,25 +1,9 @@
 import sys
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QThread, pyqtSignal
-import translators as ts
 
 from design import Ui_MainWindow
-
-
-class TranslateThread(QThread):
-    """Создание потока для перевода.
-    """
-    finish_signal = pyqtSignal(object)
-
-    def __init__(self, parent=None):
-        super().__init__()
-        self.text = ''
-        self.lang_from = ''
-        self.lang_to = ''
-
-    def run(self):
-        text = ts.google(self.text, self.lang_from, self.lang_to)
-        self.finish_signal.emit(text)
+from hotkey import Hotkey
+from thread import TranslateThread
 
 
 class Window(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -164,6 +148,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     window = Window()
     window.show()
+    Hotkey(window, app)
     app.exec_()
 
 
