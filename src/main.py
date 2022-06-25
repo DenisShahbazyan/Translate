@@ -1,12 +1,13 @@
 import sys
-from PyQt5 import QtWidgets
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget
 
 from design import Ui_MainWindow
 from hotkey import Hotkey
 from thread import TranslateThread
 
 
-class Window(QtWidgets.QMainWindow, Ui_MainWindow):
+class Window(QMainWindow, Ui_MainWindow):
     LANGUAGES = {
         'Auto': 'auto',
         'English': 'en',
@@ -84,13 +85,21 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+
         self.setup()
 
     def setup(self):
         """Конструктор, вынес в отдельный метод, чтобы не захлямлять.
         """
+        self.resize_window()
         self.set_comboBox()
         self.events()
+
+    def resize_window(self):
+        """Задаю стартовое соотношение строн приложения.
+        """
+        monitor = QDesktopWidget().availableGeometry()
+        self.resize(monitor.width() // 3 * 2, monitor.height() // 4 * 2)
 
     def set_comboBox(self):
         """Начальные настройки для comboBox'ов.
@@ -101,37 +110,35 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lang_to.addItems(self.LANGUAGES.keys())
         self.lang_to.setCurrentText('English')
 
-    def switch_lang(self):
-        """Смена языков по сигналу и смена текстов местами. При смене тексов
-        перевод начинается автоматически.
-        """
-        lang_from = self.lang_from.currentText()
-        lang_to = self.lang_to.currentText()
-
-        self.lang_from.setCurrentText(lang_to)
-        self.lang_to.setCurrentText(lang_from)
-
-        text_from = self.text_from.toPlainText()
-        text_to = self.text_to.toPlainText()
-
-        self.text_from.setPlainText(text_to)
-        self.text_to.setPlainText(text_from)
-
     def events(self):
         """Сигналы.
         """
-        self.change_lang.clicked.connect(self.switch_lang)
+        self.change_lang.clicked.connect(self.push_change_lang)
+
         self.lang_to.currentTextChanged.connect(self.in_thread)
 
         self.text_from.blockCountChanged.connect(self.in_thread)
         self.thr = TranslateThread(self)
         self.thr.finish_signal.connect(self.from_thred)
 
+    def push_change_lang(self):
+        """Смена языков по сигналу и смена текстов местами. При смене тексов
+        перевод начинается автоматически.
+        """
+        lang_from = self.lang_from.currentText()
+        lang_to = self.lang_to.currentText()
+        self.lang_from.setCurrentText(lang_to)
+        self.lang_to.setCurrentText(lang_from)
+
+        text_from = self.text_from.toPlainText()
+        text_to = self.text_to.toPlainText()
+        self.text_from.setPlainText(text_to)
+        self.text_to.setPlainText(text_from)
+
     def in_thread(self):
         """Передача данных в поток.
         """
-        text = self.text_from.toPlainText()
-        self.thr.text = text
+        self.thr.text = self.text_from.toPlainText()
         self.thr.lang_from = self.LANGUAGES[self.lang_from.currentText()]
         self.thr.lang_to = self.LANGUAGES[self.lang_to.currentText()]
         self.thr.start()
@@ -145,7 +152,7 @@ class Window(QtWidgets.QMainWindow, Ui_MainWindow):
 def main():
     """Инициализация приложения.
     """
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     window = Window()
     window.show()
     Hotkey(window, app)

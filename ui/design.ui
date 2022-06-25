@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
-    <height>329</height>
+    <width>955</width>
+    <height>365</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,14 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QComboBox" name="lang_from"/>
+       <widget class="QComboBox" name="lang_from">
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="change_lang">
@@ -32,23 +39,50 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
         <property name="text">
          <string>&lt;=&gt;</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="lang_to"/>
+       <widget class="QComboBox" name="lang_to">
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPlainTextEdit" name="text_from"/>
+       <widget class="QPlainTextEdit" name="text_from">
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QPlainTextEdit" name="text_to"/>
+       <widget class="QPlainTextEdit" name="text_to">
+        <property name="font">
+         <font>
+          <family>Segoe UI</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -59,7 +93,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>746</width>
+     <width>955</width>
      <height>21</height>
     </rect>
    </property>
