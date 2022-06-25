@@ -1,5 +1,4 @@
 import sys
-from PyQt5 import QtGui
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget
 
 from design import Ui_MainWindow
