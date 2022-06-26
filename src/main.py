@@ -1,9 +1,10 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget
+from PyQt5.QtCore import Qt
 
 from design import Ui_MainWindow
 from hotkey import Hotkey
-from thread import TranslateThread
+from thread import TranslateThread, PasteThread
 
 
 class Window(QMainWindow, Ui_MainWindow):
@@ -84,23 +85,23 @@ class Window(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-
+        Hotkey(self)
         self.setup()
 
     def setup(self):
         """Конструктор, вынес в отдельный метод, чтобы не захлямлять.
         """
-        self.resize_window()
-        self.set_comboBox()
-        self.events()
+        self.__resize_window()
+        self.__set_comboBox()
+        self.__signals()
 
-    def resize_window(self):
+    def __resize_window(self):
         """Задаю стартовое соотношение строн приложения.
         """
         monitor = QDesktopWidget().availableGeometry()
         self.resize(monitor.width() // 3 * 2, monitor.height() // 4 * 2)
 
-    def set_comboBox(self):
+    def __set_comboBox(self):
         """Начальные настройки для comboBox'ов.
         """
         self.lang_from.addItems(self.LANGUAGES.keys())
@@ -109,16 +110,29 @@ class Window(QMainWindow, Ui_MainWindow):
         self.lang_to.addItems(self.LANGUAGES.keys())
         self.lang_to.setCurrentText('English')
 
-    def events(self):
+    def __signals(self):
         """Сигналы.
         """
         self.change_lang.clicked.connect(self.push_change_lang)
 
-        self.lang_to.currentTextChanged.connect(self.in_thread)
+        self.lang_to.currentTextChanged.connect(self.translate_in_thr)
 
-        self.text_from.blockCountChanged.connect(self.in_thread)
-        self.thr = TranslateThread(self)
-        self.thr.finish_signal.connect(self.from_thred)
+        self.text_from.blockCountChanged.connect(self.translate_in_thr)
+        self.trans_thr = TranslateThread(self)
+        self.trans_thr.finish_signal.connect(self.translate_from_thr)
+
+    def show_hide_window(self):
+        if self.isVisible():
+            self.hide()
+        else:
+            self.show(),
+            self.raise_(),
+            self.activateWindow(),
+            self.setWindowFlag(
+                Qt.WindowStaysOnTopHint,
+                Qt.X11BypassWindowManagerHint
+            ),
+            self.show()
 
     def push_change_lang(self):
         """Смена языков по сигналу и смена текстов местами. При смене тексов
@@ -134,18 +148,42 @@ class Window(QMainWindow, Ui_MainWindow):
         self.text_from.setPlainText(text_to)
         self.text_to.setPlainText(text_from)
 
-    def in_thread(self):
+    def translate_in_thr(self):
         """Передача данных в поток.
         """
-        self.thr.text = self.text_from.toPlainText()
-        self.thr.lang_from = self.LANGUAGES[self.lang_from.currentText()]
-        self.thr.lang_to = self.LANGUAGES[self.lang_to.currentText()]
-        self.thr.start()
+        self.trans_thr.text = self.text_from.toPlainText()
+        self.trans_thr.lang_from = self.LANGUAGES[self.lang_from.currentText()]
+        self.trans_thr.lang_to = self.LANGUAGES[self.lang_to.currentText()]
 
-    def from_thred(self, text):
+        self.trans_thr.start()
+
+    def translate_from_thr(self, text):
         """Получение данных из потока.
         """
         self.text_to.setPlainText(text)
+
+    def paste_in_thr(self):
+        """Отправка данных в поток / Создание потока.
+        """
+        self.paste_thr = PasteThread(self)
+        self.paste_thr.finish_signal.connect(self.paste_from_thr)
+
+        self.paste_thr.start()
+
+    def paste_from_thr(self, text):
+        """Получение данных из потока.
+        """
+        self.text_from.setPlainText(text)
+        self.translate_in_thr()
+        if not self.isVisible():
+            self.show(),
+            self.raise_(),
+            self.activateWindow(),
+            self.setWindowFlag(
+                Qt.WindowStaysOnTopHint,
+                Qt.X11BypassWindowManagerHint
+            ),
+            self.show()
 
 
 def main():
@@ -154,7 +192,6 @@ def main():
     app = QApplication(sys.argv)
     window = Window()
     window.show()
-    Hotkey(window, app)
     app.exec_()
 
 
