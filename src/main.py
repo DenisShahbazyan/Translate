@@ -1,13 +1,14 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
+from settings import DataSettings, SettingsWindow
 
-from design import Ui_MainWindow
+from ui.MainWindow import Ui_MainWindow
 from hotkey import Hotkey
 from thread import TranslateThread, PasteThread
 
 
-class Window(QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     LANGUAGES = {
         'Auto': 'auto',
         'English': 'en',
@@ -85,15 +86,24 @@ class Window(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        Hotkey(self)
         self.setup()
 
     def setup(self):
         """Конструктор, вынес в отдельный метод, чтобы не захлямлять.
         """
+        self.__load_settings()
+        Hotkey(self)
         self.__resize_window()
         self.__set_comboBox()
         self.__signals()
+
+    def __load_settings(self):
+        ds = DataSettings()
+        settings = QSettings(ds.APP_NAME, ds.COMPANY_NAME)
+        app_name = settings.value('APP_NAME')
+        if app_name is not None:
+            ds.hotkey_show_hide = settings.value('hotkey_show_hide')
+            ds.hotkey_show_paste = settings.value('hotkey_show_paste')
 
     def __resize_window(self):
         """Задаю стартовое соотношение строн приложения.
@@ -113,6 +123,8 @@ class Window(QMainWindow, Ui_MainWindow):
     def __signals(self):
         """Сигналы.
         """
+        self.action.triggered.connect(self.show_window_settings)
+
         self.change_lang.clicked.connect(self.push_change_lang)
 
         self.lang_to.currentTextChanged.connect(self.translate_in_thr)
@@ -120,6 +132,17 @@ class Window(QMainWindow, Ui_MainWindow):
         self.text_from.blockCountChanged.connect(self.translate_in_thr)
         self.trans_thr = TranslateThread(self)
         self.trans_thr.finish_signal.connect(self.translate_from_thr)
+
+    def show_window_settings(self):
+        self.__s = SettingsWindow()
+        self.__s.show(),
+        self.__s.raise_(),
+        self.__s.activateWindow(),
+        self.__s.setWindowFlag(
+            Qt.WindowStaysOnTopHint,
+            Qt.X11BypassWindowManagerHint
+        ),
+        self.__s.show()
 
     def show_hide_window(self):
         if self.isVisible():
@@ -190,7 +213,7 @@ def main():
     """Инициализация приложения.
     """
     app = QApplication(sys.argv)
-    window = Window()
+    window = MainWindow()
     window.show()
     app.exec_()
 
