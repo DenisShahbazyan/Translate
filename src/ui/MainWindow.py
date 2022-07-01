@@ -66,7 +66,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 955, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 955, 21))
         self.menubar.setObjectName("menubar")
         self.menu = QtWidgets.QMenu(self.menubar)
         self.menu.setObjectName("menu")
@@ -86,8 +86,8 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Переводчик"))
         self.change_lang.setText(_translate("MainWindow", "<=>"))
-        self.menu.setTitle(_translate("MainWindow", "Меню"))
-        self.action.setText(_translate("MainWindow", "Настройки"))
+        self.menu.setTitle(_translate("MainWindow", "Menu"))
+        self.action.setText(_translate("MainWindow", "Settings"))
 
 
 if __name__ == "__main__":

@@ -17,3 +17,7 @@ class Hotkey:
             ds.hotkey_show_paste,
             lambda: window.paste_in_thr()
         )
+        keyboard.add_hotkey(
+            'Enter',
+            lambda: window.translate_in_thr()
+        )

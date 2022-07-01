@@ -2,7 +2,9 @@ from PyQt5.QtCore import QThread, pyqtSignal
 import translators as ts
 import keyboard
 import pyautogui
-from win32clipboard import OpenClipboard, GetClipboardData, CloseClipboard
+import win32clipboard
+
+from settings import DataSettings
 
 
 class TranslateThread(QThread):
@@ -30,11 +32,13 @@ class PasteThread(QThread):
         super().__init__()
 
     def run(self):
+        ds = DataSettings()
+        key = ds.hotkey_show_paste.split('+')[0].strip()
         while True:
-            if not keyboard.is_pressed('Alt'):
+            if not keyboard.is_pressed(key):
                 pyautogui.hotkey('ctrl', 'c')
                 break
-        OpenClipboard()
-        text = GetClipboardData()
-        CloseClipboard()
+        win32clipboard.OpenClipboard()
+        text = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
+        win32clipboard.CloseClipboard()
         self.finish_signal.emit(text)

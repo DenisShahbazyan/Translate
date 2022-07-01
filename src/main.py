@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget
 from PyQt5.QtCore import Qt, QSettings
+from langdetect import detect
 
 from settings import DataSettings, SettingsWindow
 from ui.MainWindow import Ui_MainWindow
@@ -57,7 +58,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.lang_to.currentTextChanged.connect(self.translate_in_thr)
 
-        self.text_from.blockCountChanged.connect(self.translate_in_thr)
+        # self.text_from.blockCountChanged.connect(self.translate_in_thr)
         self.trans_thr = TranslateThread(self)
         self.trans_thr.finish_signal.connect(self.translate_from_thr)
 
@@ -99,16 +100,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.text_from.setPlainText(text_to)
         self.text_to.setPlainText(text_from)
 
-    def translate_in_thr(self):
+    def translate_in_thr(self, *args, lang_to=None):
         """Передача данных в поток.
         """
         self.trans_thr.text = self.text_from.toPlainText()
         self.trans_thr.lang_from = (
             self.ds.LANGUAGES[self.lang_from.currentText()]
         )
-        self.trans_thr.lang_to = (
-            self.ds.LANGUAGES[self.lang_to.currentText()]
-        )
+        if lang_to is None:
+            self.trans_thr.lang_to = (
+                self.ds.LANGUAGES[self.lang_to.currentText()]
+            )
+        else:
+            self.trans_thr.lang_to = lang_to
 
         self.trans_thr.start()
 
@@ -128,8 +132,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def paste_from_thr(self, text):
         """Получение данных из потока.
         """
+        def get_key(lang_text):
+            for key, value in self.ds.LANGUAGES.items():
+                if lang_text == value:
+                    return key
+
+        def get_need_lang(lang_text):
+            lang = get_key(lang_text)
+            if self.ds.fast_lang_1 == lang:
+                return self.ds.LANGUAGES[self.ds.fast_lang_2]
+            return self.ds.LANGUAGES[self.ds.fast_lang_1]
+
         self.text_from.setPlainText(text)
-        self.translate_in_thr()
+        lang_text = detect(text)
+        need_lang = get_need_lang(lang_text)
+        self.lang_to.setCurrentText(get_key(need_lang))
+        self.translate_in_thr(lang_to=need_lang)
+
         if not self.isVisible():
             self.show(),
             self.raise_(),

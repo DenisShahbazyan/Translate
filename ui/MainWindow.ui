@@ -94,12 +94,12 @@
      <x>0</x>
      <y>0</y>
      <width>955</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>Меню</string>
+     <string>Menu</string>
     </property>
     <addaction name="action"/>
    </widget>
@@ -108,7 +108,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action">
    <property name="text">
-    <string>Настройки</string>
+    <string>Settings</string>
    </property>
   </action>
  </widget>
