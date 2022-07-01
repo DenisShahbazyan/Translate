@@ -1,88 +1,13 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget
 from PyQt5.QtCore import Qt, QSettings
-from settings import DataSettings, SettingsWindow
 
+from settings import DataSettings, SettingsWindow
 from ui.MainWindow import Ui_MainWindow
-from hotkey import Hotkey
 from thread import TranslateThread, PasteThread
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    LANGUAGES = {
-        'Auto': 'auto',
-        'English': 'en',
-        'Russian': 'ru',
-        'Chinese': 'zh',
-        'Arabic': 'ar',
-        'French': 'fr',
-        'German': 'de',
-        'Spanish': 'es',
-        'Portuguese': 'pt',
-        'Italian': 'it',
-        'Japanese': 'ja',
-        'Korean': 'ko',
-        'Greek': 'el',
-        'Dutch': 'nl',
-        'Hindi': 'hi',
-        'Turkish': 'tr',
-        'Malay': 'ms',
-        'Thai': 'th',
-        'Vietnamese': 'vi',
-        'Indonesian': 'id',
-        'Hebrew': 'he',
-        'Polish': 'pl',
-        'Mongolian': 'mn',
-        'Czech': 'cs',
-        'Hungarian': 'hu',
-        'Estonian': 'et',
-        'Bulgarian': 'bg',
-        'Danish': 'da',
-        'Finnish': 'fi',
-        'Romanian': 'ro',
-        'Swedish': 'sv',
-        'Slovenian': 'sl',
-        'Persian/farsi': 'fa',
-        'Bosnian': 'bs',
-        'Serbian': 'sr',
-        'Fijian': 'fj',
-        'Filipino': 'tl',
-        'Haitiancreole': 'ht',
-        'Catalan': 'ca',
-        'Croatian': 'hr',
-        'Latvian': 'lv',
-        'Lithuanian': 'lt',
-        'Urdu': 'ur',
-        'Ukrainian': 'uk',
-        'Welsh': 'cy',
-        'Tahiti': 'ty',
-        'Tongan': 'to',
-        'Swahili': 'sw',
-        'Samoan': 'sm',
-        'Slovak': 'sk',
-        'Afrikaans': 'af',
-        'Norwegian': 'no',
-        'Bengali': 'bn',
-        'Malagasy': 'mg',
-        'Maltese': 'mt',
-        'Queretaro otomi': 'otq',
-        'Klingon/tlhingan hol': 'tlh',
-        'Gujarati': 'gu',
-        'Tamil': 'ta',
-        'Telugu': 'te',
-        'Punjabi': 'pa',
-        'Amharic': 'am',
-        'Azerbaijani': 'az',
-        'Bashkir': 'ba',
-        'Belarusian': 'be',
-        'Cebuano': 'ceb',
-        'Chuvash': 'cv',
-        'Esperanto': 'eo',
-        'Basque': 'eu',
-        'Irish': 'ga',
-        'Emoji': 'emj',
-    }
-
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -92,18 +17,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Конструктор, вынес в отдельный метод, чтобы не захлямлять.
         """
         self.__load_settings()
-        Hotkey(self)
         self.__resize_window()
         self.__set_comboBox()
         self.__signals()
 
     def __load_settings(self):
-        ds = DataSettings()
-        settings = QSettings(ds.APP_NAME, ds.COMPANY_NAME)
+        self.ds = DataSettings()
+        settings = QSettings(self.ds.APP_NAME, self.ds.COMPANY_NAME)
         app_name = settings.value('APP_NAME')
         if app_name is not None:
-            ds.hotkey_show_hide = settings.value('hotkey_show_hide')
-            ds.hotkey_show_paste = settings.value('hotkey_show_paste')
+            self.ds.hotkey_show_hide = settings.value('hotkey_show_hide')
+            self.ds.hotkey_show_paste = settings.value('hotkey_show_paste')
+            from hotkey import Hotkey
+            Hotkey(self)
+            self.ds.fast_lang_1 = settings.value('fast_lang_1')
+            self.ds.fast_lang_2 = settings.value('fast_lang_2')
 
     def __resize_window(self):
         """Задаю стартовое соотношение строн приложения.
@@ -114,10 +42,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __set_comboBox(self):
         """Начальные настройки для comboBox'ов.
         """
-        self.lang_from.addItems(self.LANGUAGES.keys())
+        self.lang_from.addItems(self.ds.LANGUAGES.keys())
         self.lang_from.setCurrentText('Auto')
 
-        self.lang_to.addItems(self.LANGUAGES.keys())
+        self.lang_to.addItems(self.ds.LANGUAGES.keys())
         self.lang_to.setCurrentText('English')
 
     def __signals(self):
@@ -175,8 +103,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         """Передача данных в поток.
         """
         self.trans_thr.text = self.text_from.toPlainText()
-        self.trans_thr.lang_from = self.LANGUAGES[self.lang_from.currentText()]
-        self.trans_thr.lang_to = self.LANGUAGES[self.lang_to.currentText()]
+        self.trans_thr.lang_from = (
+            self.ds.LANGUAGES[self.lang_from.currentText()]
+        )
+        self.trans_thr.lang_to = (
+            self.ds.LANGUAGES[self.lang_to.currentText()]
+        )
 
         self.trans_thr.start()
 

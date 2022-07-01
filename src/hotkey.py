@@ -8,11 +8,12 @@ class Hotkey:
     """
 
     def __init__(self, window) -> None:
+        ds = DataSettings()
         keyboard.add_hotkey(
-            DataSettings.hotkey_show_hide,
+            ds.hotkey_show_hide,
             lambda: window.show_hide_window()
         )
         keyboard.add_hotkey(
-            DataSettings.hotkey_show_paste,
+            ds.hotkey_show_paste,
             lambda: window.paste_in_thr()
         )
