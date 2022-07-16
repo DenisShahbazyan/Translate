@@ -30,7 +30,7 @@ PyQt5-sip==12.11.0
 PyRect==0.2.0
 PyScreeze==0.1.28
 pytweening==1.0.4
-pywin32 @ file:///C:/YandexDisk/Prog/Python/Forms/translate/lib/pywin32-304.0-cp310-cp310-win_amd64.whl
+pywin32 @ file:///C:/YandexDisk/Prog/Python/Forms/translate/data/lib/pywin32-304.0-cp310-cp310-win_amd64.whl
 pywin32-ctypes==0.2.0
 requests==2.28.0
 six==1.16.0
